@@ -31,10 +31,12 @@ class indexController extends Controller
     {
 
         $isAdmin = $request->isAdmin;
-        $getPersonal = new getPersonal($accountId);
+       /* $getPersonal = new getPersonal($accountId);
         if ($getPersonal->status == "деактивированный" or $getPersonal->status == null){
             $hideOrShow = "show";
-        } else  $hideOrShow = "hide";
+        } else  $hideOrShow = "hide";*/
+
+        $hideOrShow = "hide";
 
         return view("main.index" , [
             'accountId' => $accountId,
