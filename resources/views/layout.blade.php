@@ -6,7 +6,7 @@
            <div class="page headfull">
                 <div class="sidenav">
                     <div class="p-2 gradient_invert pb-3 ">
-                        <img style="margin-top: 0.5rem;" src="{{ asset('logo.png') }}" width="70%"  alt="">
+                        <img style="margin-top: 0.5rem;" src="{{ asset('integration.svg') }}" width="70%"  alt="">
                     </div>
 
                     <br>
