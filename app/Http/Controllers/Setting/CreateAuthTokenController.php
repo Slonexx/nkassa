@@ -28,6 +28,7 @@ class CreateAuthTokenController extends Controller
             'isAdmin' => $isAdmin,
 
             'token' => $SettingBD->authtoken,
+            'idKassa' => $SettingBD->idKassa,
         ]);
     }
 
@@ -38,15 +39,16 @@ class CreateAuthTokenController extends Controller
         $Client = new KassClient($accountId);
 
         if ($SettingBD->tokenMs == null) {
-            DataBaseService::createMainSetting($accountId, $Setting->TokenMoySklad, $request->token);
+            DataBaseService::createMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa);
         } else {
-            DataBaseService::updateMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $SettingBD->profile_id,  $SettingBD->cashbox_id,  $SettingBD->sale_point_id);
+            DataBaseService::updateMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa);
         }
 
 
         try {
-            $body = $Client->getCheck();
+            $body = $Client->moneyPlacement(100, 1);
         } catch (BadResponseException $e){
+            $json = json_decode($e->getResponse()->getBody()->getContents());
             if ($e->getCode() == 401){
                 return view('setting.authToken', [
                     'accountId' => $accountId,
@@ -54,40 +56,58 @@ class CreateAuthTokenController extends Controller
 
                     'message' => "Токен не действительный, пожалуйста введите данные заново " ,
                     'token' => null,
+                    'idKassa' => null,
                 ]);
             }
 
-            return view('setting.authToken', [
-                'accountId' => $accountId,
-                'isAdmin' => $request->isAdmin,
+           if (property_exists($json,'error')){
+               return view('setting.authToken', [
+                   'accountId' => $accountId,
+                   'isAdmin' => $request->isAdmin,
 
-                'message' => (string) ($e->getResponse()->getBody()->getContents()) ,
-                'token' => $request->token,
-            ]);
+                   'message' => (string) $json->error->message,
+                   'token' => null,
+                   'idKassa' => $request->idKassa,
+               ]);
+           } else  return view('setting.authToken', [
+               'accountId' => $accountId,
+               'isAdmin' => $request->isAdmin,
+
+               'message' => (string) $json ,
+               'token' => null,
+               'idKassa' => $request->idKassa,
+           ]);
         }
 
-        $cfg = new cfg();
+       /* $cfg = new cfg();
         $app = AppInstanceContoller::loadApp($cfg->appId, $accountId);
         $app->status = AppInstanceContoller::ACTIVATED;
         $vendorAPI = new VendorApiController();
         $vendorAPI->updateAppStatus($cfg->appId, $accountId, $app->getStatusName());
-        $app->persist();
+        $app->persist();*/
 
-        return to_route('getKassa', ['accountId' => $accountId, 'isAdmin' => $request->isAdmin]);
+        return to_route('getDocument', ['accountId' => $accountId, 'isAdmin' => $request->isAdmin]);
     }
 
 
     public function createAuthToken(Request $request): \Illuminate\Http\JsonResponse
     {
-        $login = str_replace('+', '', str_replace(" ", '', $request->email)) ;
+        $login = str_replace('+', '', str_replace(" ", '', str_replace('-', '',
+            str_replace('(', '', str_replace(')', '', $request->email))))) ;
         $password = str_replace(" ", '', $request->password) ;
 
         $client = new KassClient("");
         try {
-            $post = $client->login($login, $password);
-            $result = [
-                'status' => $post->getStatusCode(),
-                'auth_token' => mb_substr(json_decode($post->getBody())->data->access_token, -40),
+            $post = json_decode($client->loginToken($login, $password)->getBody()->getContents());
+            if (property_exists($post, 'error')) {
+                $result = [
+                    'status' => 500,
+                    'auth_token' => null,
+                ];
+            }
+            else $result = [
+                'status' => 200,
+                'auth_token' => $post->data->api_token,
             ];
         } catch (BadResponseException $e){
             $result = [

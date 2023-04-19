@@ -16,31 +16,22 @@
 
         @include('div.TopServicePartner')
 
-            <div id="message_good" class="mt-2 alert alert-success alert-dismissible fade show in text-center" style="display: none">
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-
-            <div id="message" class="mt-2 alert alert-danger alert-dismissible fade show in text-center" style="display: none">
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-
-
         <form class="mt-3" action="" method="post">
         @csrf <!-- {{ csrf_field() }} -->
             <div class="row">
-                <label for="idKassa" class="col-3 col-form-label"> Выберите кассу </label>
-                <div class="col-9">
-                    <select id="idKassa" name="idKassa" class="form-select text-black" onchange="CashOnHand()">
-                        @foreach( $ArrayKassa as $item)
-                            <option value="{{ $item->id }}"> {{ $item->name }} </option>
-                        @endforeach
-                    </select>
+
+                <div id="message_good" class="mt-2 alert alert-success alert-dismissible fade show" style="display: none">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="col-3">  </div>
-                <div class="col-4 mx-3 row bg-success text-white p-1 col-form-label rounded ">
-                    <div class="col-6"> Наличных в кассе: </div>
-                    <div class="col-6 text-right" id="cashKassa"> </div>
+
+                <div id="message" class="mt-2 alert alert-danger fade show " style="display: none">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+
+                <div id="info" class="mt-2 alert alert-secondary fade show " style="display: none">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
             </div>
 
             <hr>
@@ -58,10 +49,12 @@
     </div>
 
     <script>
-        let idKassa = "{{$kassa}}"
         let accountId = '{{ $accountId }}'
-        window.document.getElementById('idKassa').value = idKassa
-        CashOnHand()
+        let message = @json($message);
+
+        window.document.getElementById('info').innerText = message
+        window.document.getElementById('info').style.display = "block"
+
         NAME_HEADER_TOP_SERVICE("Смена")
 
         function Report(Params){
@@ -70,11 +63,7 @@
 
             let url = "{{ Config::get("Global")['url'] }}" + "kassa/"+Params+"/" +accountId
 
-            let data = {
-                cashbox_id: window.document.getElementById('idKassa').value,
-            };
-
-            let settings = ajax_settings(url, "GET", data);
+            let settings = ajax_settings(url, "GET", []);
             console.log(url + ' settings ↓ ')
             console.log(settings)
             $.ajax(settings).done(function (json) {
@@ -82,32 +71,7 @@
                 console.log(json)
 
                 if (json.statusCode == 200){
-                    $('#Print').append(json.Data.check)
-                } else {
-                    window.document.getElementById('message').style.display = 'block'
-                    window.document.getElementById('message').innerText = json.message
-                }
-
-            })
-        }
-
-        function CashOnHand(){
-            window.document.getElementById('message').style.display = 'none'
-
-            let url = "{{ Config::get("Global")['url'] }}" + "kassa/MoneyOperation/viewCash/" +accountId
-            let data = {
-                cashbox_id: window.document.getElementById('idKassa').value,
-            };
-
-            let settings = ajax_settings(url, "GET", data);
-            console.log(url + ' settings ↓ ')
-            console.log(settings)
-            $.ajax(settings).done(function (json) {
-                console.log(url + ' response ↓ ')
-                console.log(json)
-
-                if (json.statusCode == 200){
-                    window.document.getElementById('cashKassa').innerText =  json.message
+                    $('#Print').append(json.Data.html)
                 } else {
                     window.document.getElementById('message').style.display = 'block'
                     window.document.getElementById('message').innerText = json.message
@@ -119,7 +83,6 @@
         function saveValCash(){
             let url = "{{ Config::get("Global")['url'] }}" + "kassa/MoneyOperation/" +accountId
             let data = {
-                cashbox_id: window.document.getElementById('idKassa').value,
                 OperationType: window.document.getElementById('operations').value,
                 Sum: window.document.getElementById('inputSum').value,
             };
@@ -136,7 +99,6 @@
                     let message_good = window.document.getElementById('message_good');
                     message_good.style.display = 'block'
                     message_good.innerText = json.message
-                    CashOnHand()
                     closeModal('cash')
                 } else {
                     console.log('false')
@@ -148,48 +110,6 @@
             })
         }
 
-        function SellOrBuyOrReturn(json, params){
-            let Type = "";
-            window.document.getElementById(''+params+'Taken').innerText = json.Taken
-            window.document.getElementById(''+params+'Count').innerText = json.Count
-
-            if (json.PaymentsByTypesApiModel.length > 0) {
-                for (let i = 0; i < json.PaymentsByTypesApiModel.length; i++) {
-                    let PaymentsByTypesApiModelName = "";
-                    if (json.PaymentsByTypesApiModel[i].Type == 1) { Type = "Card"; PaymentsByTypesApiModelName = "Банковская карта" }
-                    if (json.PaymentsByTypesApiModel[i].Type == 0) { Type = "Cash"; PaymentsByTypesApiModelName = "Наличные" }
-
-                    $('#' + params + 'PaymentsByTypesApiModel' +  Type).append('<td colspan="4"> &nbsp; &nbsp;' + PaymentsByTypesApiModelName + " </td>")
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td style="text-align: right;" colspan="8">' + new Intl.NumberFormat().format(json.PaymentsByTypesApiModel[i].Sum) + " </td>")
-                }
-            }
-
-                if (json.Discount > 0) {
-                    Type = "Discount";
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td colspan="4"> &nbsp; &nbsp;' + "Скидка" + " </td>")
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td style="text-align: right;" colspan="8">' + new Intl.NumberFormat().format(json.Discount) + " </td>")
-                }
-
-                if (json.Markup > 0) {
-                    Type = "Markup";
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td colspan="4"> &nbsp; &nbsp;' + "Наценка" + " </td>")
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td style="text-align: right;" colspan="8">' + new Intl.NumberFormat().format(json.Markup) + " </td>")
-                }
-
-                if (json.Change > 0) {
-                    Type = "Change";
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td colspan="4"> &nbsp; &nbsp;' + "Сдачи" + " </td>")
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td style="text-align: right;" colspan="8">' + new Intl.NumberFormat().format(json.Change) + " </td>")
-                }
-
-                if (json.VAT > 0) {
-                    Type = "VAT";
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td colspan="4"> &nbsp; &nbsp;' + "НДС" + " </td>")
-                    $('#' + params + 'PaymentsByTypesApiModel' + Type).append('<td style="text-align: right;" colspan="8">' + new Intl.NumberFormat().format(json.VAT) + " </td>")
-                }
-
-
-        }
 
     </script>
 
@@ -205,8 +125,8 @@
                         <label for="operations" class="col-5 col-form-label"> Выберите операцию </label>
                         <div class="col-7">
                             <select id="operations" name="operations" class="form-select text-black" onchange="valueCash(this.value)">
-                                <option value="0"> Внесение </option>
-                                <option value="1"> Изъятие </option>
+                                <option value="1"> Внесение </option>
+                                <option value="0"> Изъятие </option>
                             </select>
                         </div>
                     </div>
@@ -237,169 +157,6 @@
                     <div class="close" data-dismiss="modal" aria-label="Close" style="cursor: pointer;"><i onclick="closeModal('Report')" class="fa-regular fa-circle-xmark"></i></div>
                 </div>
                 <div id="Print" class="modal-body divPrint" style="font-size: 14px">
-                    {{--<div id="ReportRow" class="row" style="display: none">
-                        <div id="TaxPayerName" style="text-align: center"> </div>
-                        <div style="text-align: center">БИН &nbsp; <span id="TaxPayerIN"></span> </div>
-                        <div id="TaxPayerVAT" style="text-align: center; display: none"> НДС Серия &nbsp;
-                            <span id="TaxPayerVATSeria"></span>
-                            <span>&nbsp; № </span>
-                            <span id="TaxPayerVATNumber"></span>
-                        </div>
-                        <hr style="border:1px dashed black; margin-top: 0 !important; margin-bottom: 0.5rem;">
-                        <div id="ReportName" style="text-align: center"> СМЕННЫЙ </div>
-                        <div class="d-flex justify-content-between" style="display: flex; justify-content: space-between;"> Документ &nbsp; <span id="ReportNumber"></span> </div>
-                        <div style="text-align: center"> Смена &nbsp; <span id="ShiftNumber"></span> </div>
-                        <div style="text-align: center">
-                            <span id="StartOn" ></span>
-                            &nbsp; - &nbsp;
-                            <span id="ReportOn" ></span>
-                        </div>
-                        <div> НЕОБНУЛЯЕМАЯ СУММА НА НАЧАЛО СМЕНЫ</div>
-                        <div id="StartNonNullable" style="display: flex;flex-direction: column;">
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-
-                                    <tr style=" padding: 0;">
-                                        <td style="padding: 0;" colspan="5">Продажа</td>
-                                        <td id="StartNonNullableSell" style="padding: 0; text-align: right;" colspan="5"> 0 </td>
-                                    </tr>
-                                    <tr style=" padding: 0;">
-                                        <td style="padding: 0;" colspan="5">Возврат продажи</td>
-                                        <td id="StartNonNullableBuy" style="padding: 0; text-align: right;" colspan="5"> 0 </td>
-                                    </tr>
-                                    <tr style=" padding: 0;">
-                                        <td style="padding: 0;" colspan="5">Покупка</td>
-                                        <td id="StartNonNullableReturnSell" style="padding: 0; text-align: right;" colspan="5"> 0.0 </td>
-                                    </tr>
-                                    <tr style=" padding: 0;">
-                                        <td style="padding: 0;" colspan="5">Возврат покупки</td>
-                                        <td id="StartNonNullableReturnBuy" style="padding: 0; text-align: right;" colspan="5"> 0.0 </td>
-                                    </tr>
-
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-                                    <tr style=" padding: 0;">
-                                        <td style="padding: 0;" colspan="4"></td>
-                                        <td style="padding: 0;" colspan="4">Количество</td>
-                                        <td style="text-align: right;" colspan="4">Сумма</td>
-                                    </tr>
-
-                                    <tr style="">
-                                        <td colspan="4">ПРОДАЖА</td>
-                                        <td id="SellCount" style="text-align: center;" colspan="4">0</td>
-                                        <td id="SellTaken" style="text-align: right;" colspan="4">0</td>
-                                    </tr>
-                                    <tr id="SellPaymentsByTypesApiModelCash" style="margin-left: 0.1rem"></tr>
-                                    <tr id="SellPaymentsByTypesApiModelCard" style="margin-left: 0.1rem"></tr>
-                                    <tr id="SellPaymentsByTypesApiModelDiscount" style="margin-left: 0.1rem"></tr>
-                                    <tr id="SellPaymentsByTypesApiModelMarkup" style="margin-left: 0.1rem"></tr>
-                                    <tr id="SellPaymentsByTypesApiModelChange" style="margin-left: 0.1rem"></tr>
-                                    <tr id="SellPaymentsByTypesApiModelVAT" style="margin-left: 0.1rem"></tr>
-
-                                    <tr style="">
-                                        <td colspan="4">ПОКУПКА</td>
-                                        <td id="BuyCount" style="text-align: center;" colspan="4">0</td>
-                                        <td id="BuyTaken" style="text-align: right;" colspan="4">0</td>
-                                    </tr>
-                                    <tr id="BuyPaymentsByTypesApiModel" style="margin-left: 0.1rem"></tr>
-                                    <tr style="">
-                                        <td colspan="4">ВОЗВРАТ ПРОДАЖИ</td>
-                                        <td id="ReturnSellCount" style="text-align: center;" colspan="4">0</td>
-                                        <td id="ReturnSellTaken" style="text-align: right;" colspan="4">0</td>
-                                    </tr>
-                                    <tr id="ReturnSellPaymentsByTypesApiModel" style="margin-left: 0.1rem"></tr>
-                                    <tr style="">
-                                        <td colspan="4">ВОЗВРАТ ПОКУПКИ</td>
-                                        <td id="ReturnBuyCount" style="text-align: center;" colspan="4">0</td>
-                                        <td id="ReturnBuyTaken" style="text-align: right;" colspan="4">0</td>
-                                    </tr>
-                                    <tr id="ReturnBuyPaymentsByTypesApiModel" style="margin-left: 0.1rem"></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                            <table role="presentation" style="width: 100%;">
-                                <tbody>
-
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Внесения</td>
-                                    <td id="PutMoneySum" style="padding: 0; text-align: right;" colspan="5">0</td>
-                                </tr>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Изъятия</td>
-                                    <td id="TakeMoneySum" style="padding: 0; text-align: right;" colspan="5">0</td>
-                                </tr>
-
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div>
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="4">НАЛИЧНЫХ В КАССЕ </td>
-                                    <td id="CashEndNonNullableSell" style="text-align: right;" colspan="8">Сумма</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div> НЕОБНУЛЯЕМАЯ СУММА НА КОНЕЦ СМЕНЫ </div>
-                        <div id="EndNonNullable" style="display: flex;flex-direction: column;">
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Продажа</td>
-                                    <td id="EndNonNullableSell" style="padding: 0; text-align: right;" colspan="5"> 0 </td>
-                                </tr>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Возврат продажи</td>
-                                    <td id="EndNonNullableBuy" style="padding: 0; text-align: right;" colspan="5"> 0 </td>
-                                </tr>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Покупка</td>
-                                    <td id="EndNonNullableReturnSell" style="padding: 0; text-align: right;" colspan="5"> 0.0 </td>
-                                </tr>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="5">Возврат покупки</td>
-                                    <td id="EndNonNullableReturnBuy" style="padding: 0; text-align: right;" colspan="5"> 0.0 </td>
-                                </tr>
-
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div>
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="4"> Контрольное значение </td>
-                                    <td id="ControlSum" style="text-align: right;" colspan="8">Сумма</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <table role="presentation" style="width: 100%; ">
-                                <tbody>
-                                <tr style=" padding: 0;">
-                                    <td style="padding: 0;" colspan="4">  Количество документов сформированных за смену: </td>
-                                    <td id="EndDocumentCount" style="text-align: right;" colspan="8">Сумма</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div> Сформировано оператором фискальных данных: &nbsp; <span id="OfdName"> </span>  </div>
-                        <hr style="border:1px dashed black; margin-top: 0.5rem !important; margin-bottom: 0.5rem;">
-                        <div style="text-align: center">ИНК ОФД: &nbsp; <span id="CashboxIN"></span> </div>
-                        <div style="text-align: center">Код ККМ КГД (РНМ): &nbsp; <span id="CashboxRN"></span> </div>
-                        <div style="text-align: center">ЗНМ: &nbsp; <span id="CashboxSN"></span> </div>
-                        <hr style="border:1px dashed black; margin-top: 0.5rem !important; margin-bottom: 0.5rem;">
-                        <div style="text-align: center">  *** Конец отчета *** </div>
-                    </div>--}}
                 </div>
                 <div class="modal-footer">
                     <button onclick="closeModal('XReport')" type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>

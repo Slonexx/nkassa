@@ -17,9 +17,7 @@ return new class extends Migration
             $table->string('accountId')->unique()->primary();
             $table->string('tokenMs');
             $table->string('authtoken');
-            $table->string('profile_id')->nullable();
-            $table->string('cashbox_id')->nullable();
-            $table->string('sale_point_id')->nullable();
+            $table->string('idKassa');
             $table->timestamps();
         });
     }

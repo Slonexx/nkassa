@@ -11,10 +11,7 @@ class getMainSettingBD extends Controller
     public mixed $accountId;
     public mixed $tokenMs;
     public mixed $authtoken;
-
-    public mixed $profile_id;
-    public mixed $cashbox_id;
-    public mixed $sale_point_id;
+    public mixed $idKassa;
 
     public mixed $paymentDocument;
     public mixed $payment_type;
@@ -32,10 +29,7 @@ class getMainSettingBD extends Controller
         $this->accountId = $BD['accountId'];
         $this->tokenMs = $BD['tokenMs'];
         $this->authtoken = $BD['authtoken'];
-
-        $this->profile_id = $BD['profile_id'];
-        $this->cashbox_id = $BD['cashbox_id'];
-        $this->sale_point_id = $BD['sale_point_id'];
+        $this->idKassa = $BD['idKassa'];
 
         $json = DataBaseService::showDocumentSetting($accountId);
         $this->paymentDocument = $json['paymentDocument'];

@@ -18,31 +18,55 @@ class ChangeController extends Controller
         $SettingBD = new getMainSettingBD($accountId);
         $Config = Config::get("Global");
 
+        $client = new KassClient($accountId);
+
+
+
         try {
-            $Client = new KassClient($accountId);
-            if ($SettingBD->authtoken != null){
-                $ArrayKassa = $Client->cashbox($SettingBD->profile_id);
-            }
-            else  return to_route('errorSetting', [
-                    'accountId' => $accountId,
-                    'isAdmin' => $isAdmin,
-                    'error' => "Токен приложения отсутствует, сообщите разработчикам приложения"]
-            );
+             $json = json_decode(($client->posReport())->getBody()->getContents());
+             $message =
+                 'Наименование организации: '.$json->data->company_name.PHP_EOL.
+                 "Идентификатор кассы: ".$json->data->pos_id.PHP_EOL.
+                 "Серийный / заводской номер: ".$json->data->factory_number.PHP_EOL.
+                 "Наличных в кассе: ".$json->data->balance.PHP_EOL;
         } catch (BadResponseException $e){
-            return to_route('errorSetting', [
+            $json = json_decode($e->getResponse()->getBody()->getContents());
+            if ($e->getCode() == 401){
+                return view('main.change', [
                     'accountId' => $accountId,
-                    'isAdmin' => $isAdmin,
-                    'error' => $e->getResponse()->getBody()->getContents()]
-            );
+                    'isAdmin' => $request->isAdmin,
+
+                    'message' => "Токен не действительный, пожалуйста введите данные заново " ,
+                    'token' => null,
+                    'idKassa' => null,
+                ]);
+            }
+
+            if (property_exists($json,'error')){
+                return view('main.change', [
+                    'accountId' => $accountId,
+                    'isAdmin' => $request->isAdmin,
+
+                    'message' => (string) $json->error->message,
+                    'token' => null,
+                    'idKassa' => $request->idKassa,
+                ]);
+            } else  return view('main.change', [
+                'accountId' => $accountId,
+                'isAdmin' => $request->isAdmin,
+
+                'message' => (string) $json ,
+                'token' => null,
+                'idKassa' => $request->idKassa,
+            ]);
         }
 
-       // dd(json_decode($ArrayKassa->getBody()->getContents())->data);
         return view('main.change', [
             'accountId' => $accountId,
             'isAdmin' => $isAdmin,
 
-            'ArrayKassa'=> json_decode($ArrayKassa->getBody()->getContents())->data,
-            'kassa' => $SettingBD->cashbox_id,
+            'message' => $message,
+            'idKassa' => $SettingBD->idKassa,
         ]);
 
     }
@@ -52,22 +76,13 @@ class ChangeController extends Controller
     {
         $Client = new KassClient($accountId);
         try {
-
-            $Client->moneyMovement($request->cashbox_id, [
-                'type' => $request->OperationType,
-                'sum' => $request->Sum
-            ]);
-
-            $body = $Client->moneyMovement($request->cashbox_id, [
-                'type' => 0,
-                'sum' => 0
-            ]);
-
+            $body = json_decode(($Client->moneyPlacement($request->Sum, $request->OperationType))->getBody()->getContents());
+           // dd($body);
             $message = "";
-            if ($request->OperationType == 1){
-                $message = "Изъятие из кассу наличных на сумму: ".$request->Sum.' '.PHP_EOL." Наличных осталось в кассе: ".json_decode($body->getBody()->getContents())->data->money_movement->cashbox->balance / 100 ;
-            } elseif ($request->OperationType == 0) {
-                $message = "Внесение в кассу наличных на сумму: ".$request->Sum.' '.PHP_EOL." Наличных осталось в кассе: ".json_decode($body->getBody()->getContents())->data->money_movement->cashbox->balance / 100;
+            if ($request->OperationType == 0){
+                $message = "Изъятие из кассу наличных на сумму: ".$request->Sum.' '.PHP_EOL." Наличных осталось в кассе: ".$body->data->balance;
+            } elseif ($request->OperationType == 1) {
+                $message = "Внесение в кассу наличных на сумму: ".$request->Sum.' '.PHP_EOL." Наличных осталось в кассе: ".$body->data->balance;
             }
 
             return [
@@ -76,10 +91,11 @@ class ChangeController extends Controller
             ];
         } catch (BadResponseException $e){
             $body = json_decode(($e->getResponse()->getBody()->getContents()));
-            if (property_exists($body, 'message')){
+
+            if (property_exists($body, 'error')){
                 return [
                     'statusCode' => 500,
-                    'message' => $body->message,
+                    'message' => $body->error->message,
                 ];
             } else return [
                 'statusCode' => 500,
@@ -88,29 +104,4 @@ class ChangeController extends Controller
         }
     }
 
-
-    public function viewCash(Request $request, $accountId): array
-    {
-        $Client = new KassClient($accountId);
-        try {
-            $body = $Client->moneyMovement($request->cashbox_id, ['type'=>0, 'sum'=>0]);
-
-            return [
-                'statusCode' => 200,
-                'message' => (float) json_decode($body->getBody()->getContents())->data->money_movement->cashbox->balance / 100,
-            ];
-
-        } catch (BadResponseException $e){
-            $body = json_decode(($e->getResponse()->getBody()->getContents()));
-            if (property_exists($body, 'message')){
-                return [
-                    'statusCode' => 500,
-                    'message' => $body->message,
-                ];
-            } else return [
-                'statusCode' => 500,
-                'message' => $e->getMessage(),
-            ];
-        }
-    }
 }

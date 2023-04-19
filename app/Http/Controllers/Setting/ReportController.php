@@ -14,19 +14,21 @@ class ReportController extends Controller
     {
         $Client = new KassClient($accountId);
         try {
-            $body = $Client->XReport($request->cashbox_id);
-            return response()->json(['Data'=> json_decode($body->getBody()->getContents())->data, "statusCode"=>200], 200);
+            $body = $Client->XReport();
+            return response()->json([
+                'Data'=> json_decode($body->getBody()->getContents())->data,
+                "statusCode"=>200], 200);
         } catch (BadResponseException $e){
             $body = json_decode(($e->getResponse()->getBody()->getContents()));
-            if (property_exists($body, 'message')){
-                return response()->json([
+            if (property_exists($body, 'error')){
+                return  response()->json([
                     'statusCode' => 500,
-                    'message' => $body->message,
-                ], 500);
-            } else return response()->json([
+                    'message' => $body->error->message,
+                ]);
+            } else return  response()->json([
                 'statusCode' => 500,
                 'message' => $e->getMessage(),
-            ], 500);
+            ]);
         }
     }
 
@@ -34,19 +36,21 @@ class ReportController extends Controller
     {
         $Client = new KassClient($accountId);
         try {
-            $body = $Client->ZReport($request->cashbox_id);
-            return response()->json(['Data'=> json_decode($body->getBody()->getContents())->data, "statusCode"=>200], 200);
+            $body = $Client->ZReport();
+            return response()->json([
+                'Data'=> json_decode($body->getBody()->getContents())->data,
+                "statusCode"=>200], 200);
         } catch (BadResponseException $e){
             $body = json_decode(($e->getResponse()->getBody()->getContents()));
-            if (property_exists($body, 'message')){
-                return response()->json([
+            if (property_exists($body, 'error')){
+                return  response()->json([
                     'statusCode' => 500,
-                    'message' => $body->message,
-                ], 500);
-            } else return response()->json([
+                    'message' => $body->error->message,
+                ]);
+            } else return  response()->json([
                 'statusCode' => 500,
                 'message' => $e->getMessage(),
-            ], 500);
+            ]);
         }
     }
 }

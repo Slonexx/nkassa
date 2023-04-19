@@ -18,10 +18,19 @@
             <div class="mb-3 row">
                 <label for="token" class="col-3 col-form-label"> Токен приложения Wipon </label>
                 <div class="col-9">
-                    <input id="token" type="text" name="token" placeholder="ключ доступа к Wipon" class="form-control form-control-orange"
+                    <input id="token" type="text" name="token" placeholder="ключ доступа к Nurkassa" class="form-control form-control-orange"
                            required maxlength="255" value="{{ $token }}">
                 </div>
             </div>
+
+            <div class="mb-3 row">
+                <label for="idKassa" class="col-3 col-form-label"> Идентификатор кассы </label>
+                <div class="col-9">
+                    <input id="idKassa" type="text" name="idKassa" placeholder="В личном кабинете, в разделе касса" class="form-control form-control-orange"
+                           required maxlength="255" value="{{ $idKassa }}">
+                </div>
+            </div>
+
             <hr>
             <div class='d-flex justify-content-end text-black btnP' >
                 <button class="btn btn-outline-dark textHover" data-bs-toggle="modal" data-bs-target="#modal"> Сохранить </button>
@@ -34,7 +43,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-handshake text-success"></i> Создание токена для Wipon</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-handshake text-success"></i> Создание токена для Nurkassa</h5>
                     <div class="close" data-dismiss="modal" aria-label="Close" style="cursor: pointer;"><i class="fa-regular fa-circle-xmark"></i></div>
                 </div>
                 <div class="modal-body">
