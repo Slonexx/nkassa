@@ -10,7 +10,7 @@ use App\Services\MetaServices\MetaHook\AttributeHook;
 use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Support\Str;
 
-class TicketService
+class   TicketService
 {
 
     private AttributeHook $attributeHook;
@@ -244,7 +244,7 @@ class TicketService
         $positions =  $this->msClient->get($oldBody->positions->meta->href)->rows;
 
         foreach ($oldBody->attributes as $item){
-            if ($item->name == 'Фискальный номер (ТИС Prosklad)' and $item->name != ''){
+            if ($item->name == 'Фискальный номер (Nurkassa)' and $item->name != ''){
                 $check_attributes_in_value_name = false;
                 break;
             } else $check_attributes_in_value_name = true;
@@ -265,7 +265,7 @@ class TicketService
     {
         $Result_attributes = null;
         foreach ($attributes as $item) {
-            if ($item->name == "фискальный номер (ТИС Prosklad)" and $check_attributes == true) {
+            if ($item->name == "фискальный номер (Nurkassa)" and $check_attributes == true) {
                 $Result_attributes[] = [
                     "meta"=> [
                         "href"=> $item->meta->href,
@@ -275,7 +275,7 @@ class TicketService
                     "value" => $postTicket->data->ticket->receipt_number,
                 ];
             }
-            if ($item->name == "Ссылка для QR-кода (ТИС Prosklad)" ) {
+            if ($item->name == "Ссылка для QR-кода (Nurkassa)" ) {
                 $Result_attributes[] = [
                     "meta"=> [
                         "href"=> $item->meta->href,
@@ -285,7 +285,7 @@ class TicketService
                     "value" => $postTicket->data->ticket->link,
                 ];
             }
-            if ($item->name == "Фискализация (ТИС Prosklad)" ) {
+            if ($item->name == "Фискализация (Nurkassa)" ) {
                 $Result_attributes[] = [
                     "meta"=> [
                         "href"=> $item->meta->href,
@@ -295,7 +295,7 @@ class TicketService
                     "value" => true,
                 ];
             }
-            if ($item->name == "ID (ТИС Prosklad)" ) {
+            if ($item->name == "ID (Nurkassa)" ) {
                 $Result_attributes[] = [
                     "meta"=> [
                         "href"=> $item->meta->href,
@@ -509,7 +509,7 @@ class TicketService
             $attributes = null;
             $positions = null;
             foreach ($attributes_item as $item){
-                if ($item->name == 'фискальный номер (ТИС Prosklad)'){
+                if ($item->name == 'фискальный номер (Nurkassa)'){
                     $attributes[] = [
                         'meta' => [
                             'href' => $item->meta->href,
@@ -519,7 +519,7 @@ class TicketService
                         'value' => $putBody->data->ticket->receipt_number,
                     ];
                 }
-                if ($item->name == 'Ссылка для QR-кода (ТИС Prosklad)'){
+                if ($item->name == 'Ссылка для QR-кода (Nurkassa)'){
                     $attributes[] = [
                         'meta' => [
                             'href' => $item->meta->href,
@@ -529,7 +529,7 @@ class TicketService
                         'value' => $putBody->data->ticket->link,
                     ];
                 }
-                if ($item->name == 'Фискализация (ТИС Prosklad)'){
+                if ($item->name == 'Фискализация (Nurkassa)'){
                     $attributes[] = [
                         'meta' => [
                             'href' => $item->meta->href,

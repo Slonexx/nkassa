@@ -52,7 +52,7 @@ class PopapController extends Controller
 
         if (property_exists($Body, 'attributes')){
             foreach ($Body->attributes as $item){
-                if ($item->name == 'фискальный номер (ТИС Prosklad)'){
+                if ($item->name == 'фискальный номер (Nurkassa)'){
                     $attributes['ticket_id'] = $item->value;
                     break;
                 }

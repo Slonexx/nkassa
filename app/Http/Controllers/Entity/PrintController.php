@@ -24,7 +24,7 @@ class PrintController extends Controller
 
             $MS = $ClientMS->get(Config::get("Global")['ms'].$entity_type.'/'.$object);
             foreach ($MS->attributes as $item){
-                if ($item->name == "Ссылка для QR-кода (ТИС Prosklad)"){
+                if ($item->name == "Ссылка для QR-кода (Nurkassa)"){
                     return redirect($item->value);
                 } else continue;
             }

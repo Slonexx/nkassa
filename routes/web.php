@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\Config\collectionOfPersonalController;
+use App\Http\Controllers\Config\DeleteVendorApiController;
+use App\Http\Controllers\Entity\PopapController;
+use App\Http\Controllers\Entity\widgetController;
 use App\Http\Controllers\initialization\indexController;
 use App\Http\Controllers\Setting\AccessController;
 use App\Http\Controllers\Setting\ChangeController;

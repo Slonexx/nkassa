@@ -85,31 +85,31 @@ class AttributeService
     {
         return [
             0 => [
-                "name" => "фискальный номер (ТИС Prosklad)",
+                "name" => "фискальный номер (Nurkassa)",
                 "type" => "string",
                 "required" => false,
                 "show" => false,
-                "description" => "данное дополнительнее поле отвечает за фискальный номер чека (ТИС Prosklad)",
+                "description" => "данное дополнительнее поле отвечает за фискальный номер чека (Nurkassa)",
             ],
             1 => [
-                "name" => "Ссылка для QR-кода (ТИС Prosklad)",
+                "name" => "Ссылка для QR-кода (Nurkassa)",
                 "type" => "link",
                 "required" => false,
-                "description" => "данное дополнительнее поле отвечает за ссылку на QR-код чека (ТИС Prosklad)",
+                "description" => "данное дополнительнее поле отвечает за ссылку на QR-код чека (Nurkassa)",
             ],
             2 => [
-                "name" => "Фискализация (ТИС Prosklad)",
+                "name" => "Фискализация (Nurkassa)",
                 "type" => "boolean",
                 "required" => false,
                 "show" => false,
-                "description" => "данное дополнительное поле отвечает за проведения фискализации, если стоит галочка то фискализация была (ТИС Prosklad)",
+                "description" => "данное дополнительное поле отвечает за проведения фискализации, если стоит галочка то фискализация была (Nurkassa)",
             ],
             3 => [
-                "name" => "ID (ТИС Prosklad)",
+                "name" => "ID (Nurkassa)",
                 "type" => "string",
                 "required" => false,
                 "show" => false,
-                "description" => "уникальный идентификатор по данному дополнительному полю идёт синхронизация с Wipon (ТИС Prosklad)",
+                "description" => "уникальный идентификатор по данному дополнительному полю идёт синхронизация с Nurkassa (Nurkassa)",
             ],
         ];
     }
@@ -117,11 +117,11 @@ class AttributeService
     public function getPayDocAttributes(){
         return [
             0 => [
-                "name" => "Фискализация (ТИС Prosklad)",
+                "name" => "Фискализация (Nurkassa)",
                 "type" => "boolean",
                 "required" => false,
                 "show" => false,
-                "description" => "данное дополнительное поле отвечает за проведения фискализации, если стоит галочка то фискализация была (ТИС Prosklad)",
+                "description" => "данное дополнительное поле отвечает за проведения фискализации, если стоит галочка то фискализация была (Nurkassa)",
             ],
         ];
     }
@@ -135,7 +135,6 @@ class AttributeService
     private function getBodyToAdd(MsClient $client, string $url, array $bodyAttributes): void
     {
         $json = $client->get($url);
-        //$bodyToAdd = [];
 
         foreach ($bodyAttributes as $body) {
             $foundedAttrib = false;
@@ -151,12 +150,6 @@ class AttributeService
             }
         }
 
-        //dd($bodyToAdd);
-
-//        if (count($bodyToAdd) > 0) {
-//            $client->multiPost($url, $bodyToAdd);
-//        }
-        //return $bodyToAdd;
     }
 
 }
