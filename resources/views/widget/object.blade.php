@@ -39,16 +39,13 @@
         let accountId = "{{$accountId}}"
         let Global_object_Id
         let entity_type = "{{$entity}}"
-        let cashbox = "{{$cashbox_id}}"
 
 
         function getSearchToTIS(){ window.open('{{Config::get("Global")['kassa']}}'+"history/receipts") }
 
         function CloseChangeWebKassa(){
             window.document.getElementById('CloseChangeWebKassa').style.display = 'none'
-            let data = {
-                cashbox_id: cashbox,
-            };
+            let data = {};
 
             let settings = ajax_settings("{{Config::get("Global")['url']}}"+'kassa/ZReport/'+accountId, 'GET', data)
             console.log('Widget setting attributes: ↓')
