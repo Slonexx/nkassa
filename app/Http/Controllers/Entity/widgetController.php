@@ -34,8 +34,6 @@ class widgetController extends Controller
             return view( 'widget.object', [
                 'accountId' => $accountId,
                 'entity' => $object,
-
-                'cashbox_id' => $Setting->cashbox_id,
             ] );
 
         } catch (BadResponseException $e){
