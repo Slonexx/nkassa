@@ -221,7 +221,7 @@ class   TicketService
         $positions =  $this->msClient->get($oldBody->positions->meta->href)->rows;
         if (property_exists($oldBody, 'attributes')) {
             foreach ($oldBody->attributes as $item){
-                if ($item->name == 'Фискальный номер (Учёт.Касса)' and $item->name != ''){
+                if ($item->name == 'Фискальный номер (Nurkassa)' and $item->name != ''){
                     $check_attributes_in_value_name = false;
                     break;
                 } else $check_attributes_in_value_name = true;
@@ -250,7 +250,7 @@ class   TicketService
                         "type"=> $item->meta->type,
                         "mediaType"=> $item->meta->mediaType,
                     ],
-                    "value" => $postTicket->data->ticket->receipt_number,
+                    "value" => $postTicket->data->params->receipt_number,
                 ];
             }
             if ($item->name == "Ссылка для QR-кода (Nurkassa)" ) {
@@ -260,7 +260,7 @@ class   TicketService
                         "type"=> $item->meta->type,
                         "mediaType"=> $item->meta->mediaType,
                     ],
-                    "value" => $postTicket->data->ticket->link,
+                    "value" => $postTicket->data->params->ofd_qr,
                 ];
             }
             if ($item->name == "Фискализация (Nurkassa)" ) {
@@ -280,7 +280,7 @@ class   TicketService
                         "type"=> $item->meta->type,
                         "mediaType"=> $item->meta->mediaType,
                     ],
-                    "value" => (string) $postTicket->data->ticket->id,
+                    "value" => (string) $postTicket->data->params->sale_id,
                 ];
             }
         }
