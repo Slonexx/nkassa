@@ -123,10 +123,6 @@ class   TicketService
 
         ];
 
-        if ($result['iin'] == null){
-            unset($result['iin']);
-        }
-
         return $result;
     }
 
