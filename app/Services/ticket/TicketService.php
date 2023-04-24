@@ -62,14 +62,12 @@ class   TicketService
 
         try {
             $postTicket = json_decode($this->kassClient->sale($Body)->getBody()->getContents());
-            //dd($Body, $postTicket);
+            $address = json_decode($this->kassClient->posShow()->getBody()->getContents());
+            dd($Body, $postTicket, $address);
 
             $result = json_decode(json_encode([
-                'data' => [
-                    'id' => $postTicket->data->params->sale_id,
-                    'receipt_number' => $postTicket->data->params->receipt_number,
-                    'link' => $postTicket->data->params->qr_data,
-                ],
+                'data' => $postTicket->data,
+                'address' => $adress,
             ]));
 
             $putBody = $this->putBodyMS($entity_type, $Body, $postTicket, $oldBody, $positions);
