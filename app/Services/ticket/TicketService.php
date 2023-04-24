@@ -61,16 +61,15 @@ class   TicketService
         if (isset($Body['Status'])) { return response()->json($Body['Message']); }
 
         try {
-            $postTicket = $this->kassClient->ticket($Body);
+            $postTicket = $this->kassClient->sale($Body);
             //dd($Body, $postTicket);
 
             $result = json_decode(json_encode([
                 'data' => [
-                    'id' => $postTicket->data->ticket->id,
-                    'receipt_number' => $postTicket->data->ticket->receipt_number,
-                    'link' => $postTicket->data->ticket->link,
+                    'id' => $postTicket->data->params->sale_id,
+                    'receipt_number' => $postTicket->data->params->receipt_number,
+                    'link' => $postTicket->data->params->qr_data,
                 ],
-                'check' => $postTicket->data->check
             ]));
 
             $putBody = $this->putBodyMS($entity_type, $Body, $postTicket, $oldBody, $positions);
@@ -83,7 +82,7 @@ class   TicketService
                 ]);
             }
             if ($this->Setting->paymentDocument != null ){
-                $this->createPaymentDocument($this->Setting->paymentDocument, $entity_type, $put, $Body['payments']);
+                $this->createPaymentDocument($this->Setting->paymentDocument, $entity_type, $put, $Body['payment']);
             }
 
             return response()->json([
@@ -116,15 +115,11 @@ class   TicketService
         if ($payments == null) return ['Status' => false, 'Message' => 'Не были введены суммы !'];
         if ($items == null) return ['Status' => false, 'Message' => 'Отсутствуют позиции товара!'];
 
-        if ($this->Setting->sale_point_id == null) return ['Status' => false, 'Message' => 'Отсутствуют настройки точки продаж в настройках приложение  !'];
-
-
 
         $result = [
             "status" => $type,
             "payment" => $payments,
-            "sale_section_id" => (int) $this->Setting->sale_point_id,
-            "items" => $items,
+            "goods" => $items,
 
         ];
 
@@ -419,21 +414,13 @@ class   TicketService
                 $url = 'https://online.moysklad.ru/api/remap/1.2/entity/';
                 $url_to_body = null;
                 foreach ($payments as $item){
-                    $change = 0;
-                    if ($item['payment_type'] == 0){
+                    if ($item['payment_method_id'] == 1){
                         if ($entity_type != 'salesreturn') {
                             $url_to_body = $url . 'cashin';
-                        } else {
-                            //$url_to_body = $url . 'cashout';
-                            break;
                         }
-                        if (isset($item['change'])) $change = $item['change'];
                     } else {
                         if ($entity_type != 'salesreturn') {
                             $url_to_body = $url . 'paymentin';
-                        } else {
-                            //$url_to_body = $url . 'paymentout';
-                            break;
                         }
                     }
 
@@ -463,7 +450,7 @@ class   TicketService
                             'type' => $OldBody->agent->meta->type,
                             'mediaType' => $OldBody->agent->meta->mediaType,
                         ] ],
-                        'sum' => ($item['total']-$change) * 100,
+                        'sum' => ($item['sum']) * 100,
                         'operations' => [
                             0 => [
                                 'meta'=> [
@@ -473,7 +460,7 @@ class   TicketService
                                     'mediaType' => $OldBody->meta->mediaType,
                                     'uuidHref' => $OldBody->meta->uuidHref,
                                 ],
-                                'linkedSum' => 0
+                                'linkedSum' => ($item['sum']) * 100
                             ], ],
                         'rate' => $rate
                     ];
@@ -503,7 +490,7 @@ class   TicketService
                             'type' => $item->meta->type,
                             'mediaType' => $item->meta->mediaType,
                         ],
-                        'value' => $putBody->data->ticket->receipt_number,
+                        'value' => $putBody->data->params->receipt_number,
                     ];
                 }
                 if ($item->name == 'Ссылка для QR-кода (Nurkassa)'){
@@ -513,7 +500,7 @@ class   TicketService
                             'type' => $item->meta->type,
                             'mediaType' => $item->meta->mediaType,
                         ],
-                        'value' => $putBody->data->ticket->link,
+                        'value' => $putBody->data->params->qr_data,
                     ];
                 }
                 if ($item->name == 'Фискализация (Nurkassa)'){
@@ -624,7 +611,7 @@ class   TicketService
             $OldMessage = $oldBody->description.PHP_EOL;
         }
 
-        return (string) $OldMessage.'['.( (int) date('H') + 6 ).date(':i:s').' '. date('Y-m-d') .'] '. $message.$postTicket->data->ticket->receipt_number ;
+        return (string) $OldMessage.'['.( (int) date('H') + 6 ).date(':i:s').' '. date('Y-m-d') .'] '. $message.$postTicket->data->params->receipt_number ;
     }
 
     private function codeUOM($UOM): \Illuminate\Http\JsonResponse|int|null
