@@ -46,12 +46,13 @@ class DataBaseService
         ]);
     }
 
-    public static function createMainSetting($accountId, $tokenMs, $authtoken, $idKassa){
+    public static function createMainSetting($accountId, $tokenMs, $authtoken, $idKassa, $section_id){
         settingModel::create([
             'accountId' => $accountId,
             'tokenMs' => $tokenMs,
             'authtoken' => $authtoken,
             'idKassa' => $idKassa,
+            'section_id' => $section_id,
         ]);
     }
     public static function showMainSetting($accountId): array
@@ -65,16 +66,18 @@ class DataBaseService
                 'tokenMs' => null,
                 'authtoken' => null,
                 'idKassa' => null,
+                'section_id' => null,
             ];
         }
         return $result;
     }
-    public static function updateMainSetting($accountId, $tokenMs, $authtoken, $idKassa){
+    public static function updateMainSetting($accountId, $tokenMs, $authtoken, $idKassa, $section_id){
         $find = settingModel::query()->where('accountId', $accountId);
         $find->update([
             'tokenMs' => $tokenMs,
             'authtoken' => $authtoken,
             'idKassa' => $idKassa,
+            'section_id' => $section_id,
         ]);
     }
 

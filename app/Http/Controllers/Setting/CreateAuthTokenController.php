@@ -29,6 +29,7 @@ class CreateAuthTokenController extends Controller
 
             'token' => $SettingBD->authtoken,
             'idKassa' => $SettingBD->idKassa,
+            'section_id' => $SettingBD->section_id,
         ]);
     }
 
@@ -39,15 +40,15 @@ class CreateAuthTokenController extends Controller
         $Client = new KassClient($accountId);
 
         if ($SettingBD->tokenMs == null) {
-            DataBaseService::createMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa);
+            DataBaseService::createMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa , $request->section_id);
         } else {
-            DataBaseService::updateMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa);
+            DataBaseService::updateMainSetting($accountId, $Setting->TokenMoySklad, $request->token, $request->idKassa, $request->section_id);
         }
 
 
         try {
-            $body = $Client->moneyPlacement(100, 1);
-        } catch (BadResponseException $e){
+            $UOM = $Client->unit(796);
+        } catch (BadResponseException $e) {
             $json = json_decode($e->getResponse()->getBody()->getContents());
             if ($e->getCode() == 401){
                 return view('setting.authToken', [
@@ -56,7 +57,8 @@ class CreateAuthTokenController extends Controller
 
                     'message' => "Токен не действительный, пожалуйста введите данные заново " ,
                     'token' => null,
-                    'idKassa' => null,
+                    'idKassa' => $request->idKassa,
+                    'section_id' => $SettingBD->section_id,
                 ]);
             }
 
@@ -68,6 +70,7 @@ class CreateAuthTokenController extends Controller
                    'message' => (string) $json->error->message,
                    'token' => null,
                    'idKassa' => $request->idKassa,
+                   'section_id' => $request->section_id,
                ]);
            } else  return view('setting.authToken', [
                'accountId' => $accountId,
@@ -76,7 +79,76 @@ class CreateAuthTokenController extends Controller
                'message' => (string) $json ,
                'token' => null,
                'idKassa' => $request->idKassa,
+               'section_id' => $request->section_id,
            ]);
+        }
+
+        try {
+            $Client->moneyPlacement(100, 1);
+        } catch (BadResponseException $e){
+            $json = json_decode($e->getResponse()->getBody()->getContents());
+
+            if (property_exists($json,'error')){
+                return view('setting.authToken', [
+                    'accountId' => $accountId,
+                    'isAdmin' => $request->isAdmin,
+
+                    'message' => (string) $json->error->message,
+                    'token' => $request->token,
+                    'idKassa' => null,
+                    'section_id' => $request->section_id,
+                ]);
+            } else  return view('setting.authToken', [
+                'accountId' => $accountId,
+                'isAdmin' => $request->isAdmin,
+
+                'message' => (string) $json ,
+                'token' => $request->token,
+                'idKassa' => null,
+                'section_id' => $request->section_id,
+            ]);
+        }
+
+        try {
+            $body = [
+                'status' => 1,
+                'payment' => [0=>[
+                    'payment_method_id'=> 1,
+                    'sum'=> 1,
+                ]],
+                'goods' => [0 => [
+                    'name'=> "Проверка токена",
+                    'price'=> 1,
+                    'quantity'=> 1,
+                    'unit_id'=> $UOM,
+                    'section_id'=> (int) $request->section_id,
+                    'markup'=> 0,
+                    'discount'=> 0,
+                    'vat'=> 0,
+                ]]
+            ];
+            $body = $Client->sale($body);
+        } catch (BadResponseException $e){
+            $json = json_decode($e->getResponse()->getBody()->getContents());
+            if (property_exists($json,'error')){
+                return view('setting.authToken', [
+                    'accountId' => $accountId,
+                    'isAdmin' => $request->isAdmin,
+
+                    'message' => (string) $json->error->message,
+                    'token' => $request->token,
+                    'idKassa' => $request->idKassa,
+                    'section_id' => null,
+                ]);
+            } else  return view('setting.authToken', [
+                'accountId' => $accountId,
+                'isAdmin' => $request->isAdmin,
+
+                'message' => (string) $json ,
+                'token' => $request->token,
+                'idKassa' => $request->idKassa,
+                'section_id' => null,
+            ]);
         }
 
         $cfg = new cfg();

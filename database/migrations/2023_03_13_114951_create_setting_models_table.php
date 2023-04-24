@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('tokenMs');
             $table->string('authtoken');
             $table->string('idKassa');
+            $table->string('section_id');
             $table->timestamps();
         });
     }

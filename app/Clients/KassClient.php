@@ -72,49 +72,28 @@ class KassClient
         return $res = $this->client->post($this->URL['kassa'].'api/v1/close/shift');
     }
 
-
-
-
-
-
-
-
-    public function ticket($body)
+    public function sale($body): \Psr\Http\Message\ResponseInterface
     {
-        $profile_id = $this->Setting->profile_id;
-        $cashbox_id = $this->Setting->cashbox_id;
-        $res = $this->client->post($this->URL['kassa'].'api/v1/profile/'.$profile_id.'/cashbox/'.$cashbox_id.'/ticket',[
-            'body' => json_encode($body),
-        ]);
-        return json_decode($res->getBody()->getContents());
+
+       return $res = $this->client->request('GET',$this->URL['kassa'].'api/v1/sale?', ['query'=>$body]);
     }
 
-    public function unit($UOM): \Illuminate\Http\JsonResponse|int
+    public function unit($UOM): int
     {
-        $profile_id = $this->Setting->profile_id;
         try {
-            $Body = $this->client->get($this->URL['kassa'].'api/v1/profile/'.$profile_id.'/common/unit');
+            $Body = $this->client->get($this->URL['kassa'].'api/v2/units');
 
             $res = 1;
 
             foreach (json_decode($Body->getBody()->getContents())->data as $item){
-                if ($item->kgd_code == $UOM) {
+                if ($item->code == $UOM) {
                     $res = $item->id;
                 }
             }
 
             return $res;
         } catch (BadResponseException $e){
-            $body = json_decode(($e->getResponse()->getBody()->getContents()));
-            if (property_exists($body, 'message')){
-                return response()->json([
-                    'statusCode' => 500,
-                    'message' => $body->message,
-                ], 500);
-            } else return response()->json([
-                'statusCode' => 500,
-                'message' => $e->getMessage(),
-            ], 500);
+            return 1;
         }
 
     }

@@ -109,10 +109,8 @@ class   TicketService
         //dd($this->Setting, $id_entity, $entity_type, $money_card, $money_cash, $payType, $total, $positions);
 
         $type = $this->getOperation($payType);
-
         $payments = $this->getPayments($money_card, $money_cash, $money_mobile, $total);
         $items = $this->getItems($positions, $id_entity, $entity_type);
-        $iin = $this->getCustomer($id_entity, $entity_type);
 
         if ($type == '') return ['Status' => false, 'Message' => 'Не выбран тип продажи'];
         if ($payments == null) return ['Status' => false, 'Message' => 'Не были введены суммы !'];
@@ -123,11 +121,11 @@ class   TicketService
 
 
         $result = [
-           "type" => $type,
-           "sale_section_id" => (int) $this->Setting->sale_point_id,
-           "items" => $items,
-           "payments" => $payments,
-           "iin" => $iin,
+            "status" => $type,
+            "payment" => $payments,
+            "sale_section_id" => (int) $this->Setting->sale_point_id,
+            "items" => $items,
+
         ];
 
         if ($result['iin'] == null){
@@ -141,8 +139,8 @@ class   TicketService
     private function getOperation($payType): int|string
     {
         return match ($payType) {
-            "sell" => 2,
-            "return" => 3,
+            "sell" => 1,
+            "return" => 2,
             default => "",
         };
     }
@@ -153,13 +151,13 @@ class   TicketService
         $tmp= null;
         if ( $cash >= 0 ) {
             $tmp[] = [
-                'payment_method' => 0,
+                'payment_method_id' => 0,
                 'sum' => (float) $cash,
             ];
         }
         if ( $card >= 0 ) {
             $tmp[] = [
-                'payment_method' => 1,
+                'payment_method_id' => 1,
                 'sum' => (float) $card,
             ];
         }
@@ -180,7 +178,7 @@ class   TicketService
         foreach ($positions as $id => $item){
             $TaxPercent = (float) trim($item->is_nds, '%');
             $discount = trim($item->discount, '%');
-            if ($TaxPercent == 'без НДС' or $TaxPercent == "0%" or $TaxPercent == 0 or $TaxPercent == "0"){ $TaxPercent = 0; $TaxType = 0; } else $TaxType = 1;
+            if ($TaxPercent == 'без НДС' or $TaxPercent == "0%" or $TaxPercent == 0 or $TaxPercent == "0") { $TaxPercent = 0; }
             if ($discount > 0){ $discount = round(($item->price * $item->quantity * ($discount/100)), 2); }
             if ($typeObject == 'demand'){
                 $demand =  $this->msClient->get('https://online.moysklad.ru/api/remap/1.2/entity/' . $typeObject . '/' . $idObject);
@@ -191,16 +189,15 @@ class   TicketService
                         foreach ($item_2->trackingCodes as $code){
                             $result[] = [
                                 'name' => (string) str_replace('+', ' ', $item->name),
+                                'price' => (float) round($item->price, 3),
                                 'quantity' => (float) round($item->quantity, 3),
-                                'price' => (float) round($item->price, 2),
-
-                                'discount' =>(float) round($discount, 2),
-                                'excise_stamp' =>(string) $code->cis,
-                                'vat_type' => (int) $TaxPercent,
 
                                 'unit_id' => (int) $this->codeUOM($item->UOM),
-                                'sale_section_id' => (int) $this->Setting->sale_point_id,
-
+                                'section_id' => (int) $this->Setting->section_id,
+                                //'markup' => 0,
+                                'discount' =>(float) round($discount, 2),
+                                'vat' => (int) $TaxPercent,
+                                'excise_stamp' => (string) $code->cis,
                             ];
                         }
 
@@ -210,28 +207,17 @@ class   TicketService
             else {
                 $result[$id] = [
                     'name' => (string) str_replace('+', ' ', $item->name),
+                    'price' => (float) round($item->price, 3),
                     'quantity' => (float) round($item->quantity, 3),
-                    'price' => (float) round($item->price, 2),
-
-                    'discount' =>(float) round($discount, 2),
-
-                    'vat_type' => (int) $TaxPercent,
 
                     'unit_id' => (int) $this->codeUOM($item->UOM),
-                    'sale_section_id' => (int) $this->Setting->sale_point_id,
+                    'section_id' => (int) $this->Setting->section_id,
+                    //'markup' => 0,
+                    'discount' =>(float) round($discount, 2),
+                    'vat' => (int) $TaxPercent,
                 ];
             }
         }
-
-        return $result;
-    }
-
-    private function getCustomer($id_entity, $entity_type)
-    {
-        $body =  $this->msClient->get('https://online.moysklad.ru/api/remap/1.2/entity/'.$entity_type.'/'.$id_entity);
-        $agent =  $this->msClient->get($body->agent->meta->href);
-        $result = null;
-        if (property_exists($agent, 'inn')) { $result = $agent->inn; }
 
         return $result;
     }
@@ -242,13 +228,14 @@ class   TicketService
 
         $attributes =  $this->msClient->get('https://online.moysklad.ru/api/remap/1.2/entity/'.$entity_type.'/metadata/attributes/')->rows;
         $positions =  $this->msClient->get($oldBody->positions->meta->href)->rows;
-
-        foreach ($oldBody->attributes as $item){
-            if ($item->name == 'Фискальный номер (Nurkassa)' and $item->name != ''){
-                $check_attributes_in_value_name = false;
-                break;
-            } else $check_attributes_in_value_name = true;
-        }
+        if (property_exists($oldBody, 'attributes')) {
+            foreach ($oldBody->attributes as $item){
+                if ($item->name == 'Фискальный номер (Учёт.Касса)' and $item->name != ''){
+                    $check_attributes_in_value_name = false;
+                    break;
+                } else $check_attributes_in_value_name = true;
+            }
+        } else $check_attributes_in_value_name = true;
 
 
         $Result_attributes = $this->setAttributesToPutBody($Body, $postTicket, $check_attributes_in_value_name, $attributes);

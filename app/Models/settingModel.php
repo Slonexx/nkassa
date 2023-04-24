@@ -14,6 +14,7 @@ class settingModel extends Model
         'tokenMs',
         'authtoken',
         'idKassa',
+        'section_id',
 
     ];
 

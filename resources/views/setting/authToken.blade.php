@@ -16,18 +16,26 @@
         <form class="mt-3" action="/Setting/createAuthToken/{{ $accountId }}?isAdmin={{ $isAdmin }}" method="post">
         @csrf <!-- {{ csrf_field() }} -->
             <div class="mb-3 row">
-                <label for="token" class="col-3 col-form-label"> Токен приложения Wipon </label>
-                <div class="col-9">
+                <label for="token" class="col-4 col-form-label"> Токен приложения Nurkassa </label>
+                <div class="col-8">
                     <input id="token" type="text" name="token" placeholder="ключ доступа к Nurkassa" class="form-control form-control-orange"
                            required maxlength="255" value="{{ $token }}">
                 </div>
             </div>
 
             <div class="mb-3 row">
-                <label for="idKassa" class="col-3 col-form-label"> Идентификатор кассы </label>
-                <div class="col-9">
+                <label for="idKassa" class="col-4 col-form-label"> Идентификатор кассы </label>
+                <div class="col-8">
                     <input id="idKassa" type="text" name="idKassa" placeholder="В личном кабинете, в разделе касса" class="form-control form-control-orange"
                            required maxlength="255" value="{{ $idKassa }}">
+                </div>
+            </div>
+
+            <div class="mb-3 row">
+                <label for="section_id" class="col-4 col-form-label"> Идентификатор Отделы / секции </label>
+                <div class="col-8">
+                    <input id="section_id" type="text" name="section_id" placeholder="В личном кабинете, в разделе Отделы/секции" class="form-control form-control-orange"
+                           required maxlength="255" value="{{ $section_id }}">
                 </div>
             </div>
 
