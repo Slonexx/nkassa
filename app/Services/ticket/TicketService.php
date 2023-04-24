@@ -61,7 +61,7 @@ class   TicketService
         if (isset($Body['Status'])) { return response()->json($Body['Message']); }
 
         try {
-            $postTicket = $this->kassClient->sale($Body);
+            $postTicket = json_decode($this->kassClient->sale($Body)->getBody()->getContents());
             dd($Body, $postTicket);
 
             $result = json_decode(json_encode([
