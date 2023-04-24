@@ -62,7 +62,7 @@ class   TicketService
 
         try {
             $postTicket = $this->kassClient->sale($Body);
-            //dd($Body, $postTicket);
+            dd($Body, $postTicket);
 
             $result = json_decode(json_encode([
                 'data' => [
