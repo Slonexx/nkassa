@@ -78,7 +78,7 @@ class KassClient
        return $res = $this->client->request('GET',$this->URL['kassa'].'api/v1/sale?', ['query'=>$body]);
     }
 
-    public function posShow($body): \Psr\Http\Message\ResponseInterface
+    public function posShow(): \Psr\Http\Message\ResponseInterface
     {
         return $res = $this->client->request('GET',$this->URL['kassa'].'api/v1/pos/'.$this->Setting->idKassa.'/show');
     }
