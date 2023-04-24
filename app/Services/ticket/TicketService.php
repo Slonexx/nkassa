@@ -239,7 +239,7 @@ class   TicketService
         return $result;
     }
 
-    private function setAttributesToPutBody(mixed $Body, mixed $postTicket, bool $check_attributes, $attributes): array
+    private function setAttributesToPutBody(mixed $Body, mixed $postTicket, bool $check_attributes, $attributes): array|null
     {
         $Result_attributes = null;
         foreach ($attributes as $item) {
