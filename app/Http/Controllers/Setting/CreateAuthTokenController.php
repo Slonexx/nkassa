@@ -47,7 +47,7 @@ class CreateAuthTokenController extends Controller
 
 
         try {
-            $UOM = $Client->unit(796);
+            $UOM = $Client->CheckToken(796);
         } catch (BadResponseException $e) {
             $json = json_decode($e->getResponse()->getBody()->getContents());
             if ($e->getCode() == 401){

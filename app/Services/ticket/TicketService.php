@@ -62,11 +62,14 @@ class   TicketService
 
         try {
             $postTicket = json_decode($this->kassClient->sale($Body)->getBody()->getContents());
-            $address = json_decode($this->kassClient->posShow()->getBody()->getContents());
+           /* $address = json_decode($this->kassClient->posShow()->getBody()->getContents());
+            $html = $this->kassClient->get($postTicket->data->preview_link."&is_print=1");*/
 
             $result = json_decode(json_encode([
                 'data' => $postTicket->data,
-                'pos' => $address->data->pos,
+                //'pos' => $address->data->pos,
+                //'payment' => $Body['payment'],
+                //'html' => "<html> <head> </head> <body>" . $html->getBody()->getContents() . " </body> </html>",
             ]));
 
             $putBody = $this->putBodyMS($entity_type, $Body, $postTicket, $oldBody, $positions);
@@ -88,10 +91,16 @@ class   TicketService
                 'postTicket' => $result,
             ]);
         } catch (BadResponseException  $e){
+            $json = json_decode($e->getResponse()->getBody()->getContents(), true);
+            //dd($json['error']);
+            if (isset($json['error'])) {
+                $json =  $json['error']['message'];
+            }
+
             return response()->json([
                 'status'    => 'error',
                 'code'      => $e->getCode(),
-                'errors'    => json_decode($e->getResponse()->getBody()->getContents(), true),
+                'errors'    => $json,
                 'Body'      => $Body,
             ]);
         }
@@ -247,7 +256,7 @@ class   TicketService
                         "type"=> $item->meta->type,
                         "mediaType"=> $item->meta->mediaType,
                     ],
-                    "value" => $postTicket->data->params->receipt_number,
+                    "value" =>(string) $postTicket->data->params->receipt_number,
                 ];
             }
             if ($item->name == "Ссылка для QR-кода (Nurkassa)" ) {
@@ -257,7 +266,7 @@ class   TicketService
                         "type"=> $item->meta->type,
                         "mediaType"=> $item->meta->mediaType,
                     ],
-                    "value" => $postTicket->data->params->ofd_qr,
+                    "value" => $postTicket->data->preview_link,
                 ];
             }
             if ($item->name == "Фискализация (Nurkassa)" ) {

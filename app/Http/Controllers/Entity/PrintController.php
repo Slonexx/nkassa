@@ -18,29 +18,20 @@ class PrintController extends Controller
         $Setting  = new getMainSettingBD($accountId);
         $ClientMS = new MsClient($Setting->tokenMs);
         $ClientKassa = new KassClient($accountId);
-        $ExternalCheckNumber = null;
+       // $ExternalCheckNumber = null;
 
         try {
 
             $MS = $ClientMS->get(Config::get("Global")['ms'].$entity_type.'/'.$object);
             foreach ($MS->attributes as $item){
                 if ($item->name == "Ссылка для QR-кода (Nurkassa)"){
-                    return redirect($item->value);
+                    return response()->json(['statusCode'=>200, 'value'=>$item->value]);
                 } else continue;
             }
-
-            return view('popup.Print', [
-                'StatusCode' => 200,
-                'Message' => "Не удалось загрузить чек, пожалуйста повторите позже",
-                'PrintFormat' => "",
-            ]);
+            return response()->json(['statusCode'=>500, 'value'=>"Не удалось загрузить чек, пожалуйста повторите позже"]);
 
         } catch (BadResponseException $e){
-            return view('popup.Print', [
-                'StatusCode' => 500,
-                'Message' => $e->getMessage(),
-                'PrintFormat' => [],
-            ]);
+            return response()->json(['statusCode'=>500, 'value'=>$e->getMessage()]);
         }
 
 

@@ -103,4 +103,16 @@ class KassClient
 
     }
 
+    public function CheckToken($UOM): \Psr\Http\Message\ResponseInterface
+    {
+            return $this->client->get($this->URL['kassa'].'api/v2/units');
+
+    }
+
+    public function get($url): \Psr\Http\Message\ResponseInterface
+    {
+        return $this->client->get($url);
+
+    }
+
 }

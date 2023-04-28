@@ -48,18 +48,33 @@
 
         if (html !== ''){
 
-            w = window.open();
+            window.open(html + "&is_print=1")
 
+            /*w = window.open();
             w.document.write(html);
             w.document.write('<scr' + 'ipt type="text/javascript">' + 'window.onload = function() { window.print(); window.close(); };' + '</sc' + 'ript>');
 
             w.document.close(); // necessary for IE >= 10
             w.focus(); // necessary for IE >= 10
 
-            return true;
+            return true;*/
         } else {
             let urlPrint = "{{Config::get("Global")['url']}}" + 'Popup/print/'+ accountId + '/' + entity_type + '/' + object_Id
-            window.open(urlPrint)
+
+            let settings = {
+                "url": urlPrint,
+                "method": "GET",
+            };
+
+            $.ajax(settings).done(function (response) {
+                if (response.statusCode === 200){
+                    window.open(response.value + "&is_print=1")
+                } else {
+                    window.alert(response.value)
+                }
+            });
+
+
         }
 
 

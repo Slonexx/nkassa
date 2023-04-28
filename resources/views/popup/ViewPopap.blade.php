@@ -148,6 +148,63 @@
         </div>
     </div>
 
+
+    <div id="ReportRow" class="row" style="display: block">
+        <div id="company_name" style="text-align: center"> </div>
+        <div style="text-align: center">ИИН/БИН &nbsp; <span id="bin"></span> </div>
+        <hr style="border:1px dashed black; margin-top: 0 !important; margin-bottom: 0.5rem;">
+        <div style="text-align: center">  &nbsp; КАССА  &nbsp; <span id="posName"></span>  &nbsp; |  &nbsp; Смена &nbsp; <span id="pos_shift_number"></span> &nbsp; </div>
+        <div style="text-align: center"> Порядковый номер чека &nbsp; <span id="sale_id"></span> </div>
+        <div style="text-align: center"> &nbsp; <span id="cashier_name"></span> &nbsp; </div>
+        <div style="text-align: left"> <span id="status_def"></span> &nbsp; </div>
+        <hr style="border:1px dashed black; margin-top: 0 !important; margin-bottom: 0.5rem;">
+        <div>
+            <table role="presentation" style="width: 100%; ">
+            <tbody id="positions" role="presentation" style="width: 100%; ">
+
+            </tbody>
+            </table>
+        </div>
+        <hr style="border:1px dashed black; margin-top: 0 !important; margin-bottom: 0.5rem;">
+        <table role="presentation" style="width: 100%; ">
+            <tbody>
+
+            <tr style="padding: 0;">
+                <td style="padding: 0; text-align: right" colspan="5"><b>ИТОГО</b></td>
+                <td id="sum" style="padding: 0; text-align: right;" colspan="7"> 0 </td>
+            </tr>
+            <tr style="padding: 0;">
+                <td style="padding: 0; text-align: right" colspan="5"><b>Наличные</b></td>
+                <td id="payment_method_id_0_Sum" style="padding: 0; text-align: right;" colspan="7"> 0 </td>
+            </tr>
+            <tr style="padding: 0;">
+                <td style="padding: 0; text-align: right" colspan="5"><b>Карта</b></td>
+                <td id="payment_method_id_1_Sum" style="padding: 0; text-align: right;" colspan="7"> 0 </td>
+            </tr>
+            <tr style="padding: 0;">
+                <td style="padding: 0; text-align: right" colspan="5"><b>Сумма сдачи</b></td>
+                <td id="change" style="padding: 0; text-align: right;" colspan="7"> 0 </td>
+            </tr>
+
+            </tbody>
+        </table>
+        <hr style="border:1px dashed black; margin-top: 0 !important; margin-bottom: 0.5rem;">
+        <div style="text-align: center">Время: &nbsp; <span id="created_at"></span> </div>
+        <div style="text-align: center">Адрес: &nbsp; <span id="address"></span> </div>
+        <div style="text-align: center">Оператор фискальных данных: &nbsp; <span id="ofd_connection"></span> </div>
+        <div style="text-align: center">Для проверки чека зайдите на сайт consumer.oofd.kz </div>
+
+        <hr style="border:1px dashed black; margin-top: 0.5rem !important; margin-bottom: 0.5rem;">
+        <div style="text-align: center"> Фискальный чек </div>
+        <div style="text-align: center">ФП: &nbsp; <span id="receipt_number"></span> </div>
+        <div style="text-align: center">ЗНМ: &nbsp; <span id="factory_number"></span> </div>
+        <div style="text-align: center">РНМ: &nbsp; <span id="registration_number"></span> </div>
+        <div id="ofd_qr" style="text-align: center">QR код не доступен </div>
+        <div style="text-align: center">NURKASSA.KZ </div>
+
+    </div>
+
+
     @include('popup.script_popup_app')
     @include('popup.style_popup_app')
 
@@ -177,7 +234,7 @@
                 }
         };
 
-        window.addEventListener("message", function(event) {
+        //window.addEventListener("message", function(event) {
         //let receivedMessage = event.data
 
         newPopup()
@@ -245,7 +302,7 @@
 
             })
         }
-         });
+         //});
 
 
 
@@ -288,8 +345,6 @@
                         }
                     }
 
-                    console.log(products)
-
                     let data =  {
                         "accountId": accountId,
                         "object_Id": object_Id,
@@ -311,23 +366,22 @@
                         method: 'post',
                         dataType: 'json',
                         data: data,
-                        success: function(response){
+                        success: function(json){
                             $('#downL').modal('hide')
                             console.log(url + ' response ↓ ')
-                            console.log(response)
-
-                            let json = response
+                            console.log(json)
 
                             if (json.status === 'Ticket created'){
                                 window.document.getElementById("messageGoodAlert").innerText = "Чек создан, пожалуйста закройте документ без сохранения!";
                                 window.document.getElementById("messageGood").style.display = "block";
                                 window.document.getElementById("ShowCheck").style.display = "block";
-                                html = json.postTicket.check
+                                html = json.postTicket.data.preview_link
+
                                 modalShowHide = 'hide';
                             } else {
                                 window.document.getElementById('message').style.display = "block";
                                 window.document.getElementById(button_hide).style.display = "block";
-                                if (json.hasOwnProperty('errors'))window.document.getElementById('messageAlert').innerText = json.errors.message
+                                if (json.hasOwnProperty('errors'))window.document.getElementById('messageAlert').innerText = JSON.stringify(json.errors)
                                 else window.document.getElementById('messageAlert').innerText = "Ошибка: " + JSON.stringify(json)
 
                                 modalShowHide = 'hide';
@@ -350,3 +404,27 @@
     </script>
 
 @endsection
+/*      html = json.postTicket.html
+
+//$('#main').append(value)
+window.document.getElementById('company_name').innerText =  json.postTicket.data.params.company_name
+window.document.getElementById('bin').innerText =  json.postTicket.data.params.bin
+window.document.getElementById('posName').innerText =  json.postTicket.data.params.pos.name
+window.document.getElementById('pos_shift_number').innerText =  json.postTicket.data.params.pos_shift_number
+window.document.getElementById('sale_id').innerText = "№"+json.postTicket.data.params.sale_id
+window.document.getElementById('cashier_name').innerText =  json.postTicket.data.params.cashier_name
+let item = json.postTicket.data.params.sale_items
+console.log( item.length )
+for (let index = 0; index> item.length -1; index++){
+let value = '<tr style="vertical-align:top;"> <td colspan="12"> <nobr> '+index+'.</nobr>  '+item[index].name+' </td> </tr>'
+
+value = value + '<tr style="vertical-align:top;"> <td colspan="8">  '+item[index].price+'*'+item[index].quantity+'ШТ'+' </td> <td colspan="4">  '+item[index].cost+' </td> </tr>'
+$('#positions').append(value)
+if (item[index].discount_def > 0) {
+value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Скидка </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
+$('#positions').append(value)
+}
+value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Стоимость </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
+$('#positions').append(value)
+}*/
+
