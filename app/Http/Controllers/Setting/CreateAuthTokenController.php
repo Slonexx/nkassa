@@ -88,6 +88,18 @@ class CreateAuthTokenController extends Controller
         } catch (BadResponseException $e){
             $json = json_decode($e->getResponse()->getBody()->getContents());
 
+            if ($e->getCode() == 401){
+                return view('setting.authToken', [
+                    'accountId' => $accountId,
+                    'isAdmin' => $request->isAdmin,
+
+                    'message' => "Токен не действительный, пожалуйста введите данные заново " ,
+                    'token' => null,
+                    'idKassa' => $request->idKassa,
+                    'section_id' => $SettingBD->section_id,
+                ]);
+            }
+
             if (property_exists($json,'error')){
                 return view('setting.authToken', [
                     'accountId' => $accountId,
