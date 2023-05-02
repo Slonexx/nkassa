@@ -222,7 +222,7 @@
         let products_length = ''
 
 
-        let receivedMessage = {
+        /*let receivedMessage = {
             "name":"OpenPopup",
             "messageId":1,
             "popupName":"fiscalizationPopup",
@@ -232,10 +232,10 @@
                     "accountId":"1dd5bd55-d141-11ec-0a80-055600047495",
                     "entity_type":"customerorder",
                 }
-        };
+        };*/
 
-        //window.addEventListener("message", function(event) {
-        //let receivedMessage = event.data
+        window.addEventListener("message", function(event) {
+        let receivedMessage = event.data
 
         newPopup()
 
@@ -244,7 +244,7 @@
             accountId = receivedMessage.popupParameters.accountId;
             entity_type = receivedMessage.popupParameters.entity_type;
 
-            receivedMessage = 0
+            //receivedMessage = 0
 
 
             if (entity_type === 'customerorder'){
@@ -302,7 +302,7 @@
 
             })
         }
-         //});
+         });
 
 
 
@@ -401,30 +401,31 @@
 
 
 
+        /*      html = json.postTicket.html
+
+                             //$('#main').append(value)
+                             window.document.getElementById('company_name').innerText =  json.postTicket.data.params.company_name
+                             window.document.getElementById('bin').innerText =  json.postTicket.data.params.bin
+                             window.document.getElementById('posName').innerText =  json.postTicket.data.params.pos.name
+                             window.document.getElementById('pos_shift_number').innerText =  json.postTicket.data.params.pos_shift_number
+                             window.document.getElementById('sale_id').innerText = "№"+json.postTicket.data.params.sale_id
+                             window.document.getElementById('cashier_name').innerText =  json.postTicket.data.params.cashier_name
+                             let item = json.postTicket.data.params.sale_items
+                             console.log( item.length )
+                             for (let index = 0; index> item.length -1; index++){
+                                 let value = '<tr style="vertical-align:top;"> <td colspan="12"> <nobr> '+index+'.</nobr>  '+item[index].name+' </td> </tr>'
+
+                                 value = value + '<tr style="vertical-align:top;"> <td colspan="8">  '+item[index].price+'*'+item[index].quantity+'ШТ'+' </td> <td colspan="4">  '+item[index].cost+' </td> </tr>'
+                                 $('#positions').append(value)
+                                 if (item[index].discount_def > 0) {
+                                     value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Скидка </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
+                                     $('#positions').append(value)
+                                 }
+                                 value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Стоимость </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
+                                 $('#positions').append(value)
+                             }*/
+
+
+
     </script>
-
 @endsection
-/*      html = json.postTicket.html
-
-//$('#main').append(value)
-window.document.getElementById('company_name').innerText =  json.postTicket.data.params.company_name
-window.document.getElementById('bin').innerText =  json.postTicket.data.params.bin
-window.document.getElementById('posName').innerText =  json.postTicket.data.params.pos.name
-window.document.getElementById('pos_shift_number').innerText =  json.postTicket.data.params.pos_shift_number
-window.document.getElementById('sale_id').innerText = "№"+json.postTicket.data.params.sale_id
-window.document.getElementById('cashier_name').innerText =  json.postTicket.data.params.cashier_name
-let item = json.postTicket.data.params.sale_items
-console.log( item.length )
-for (let index = 0; index> item.length -1; index++){
-let value = '<tr style="vertical-align:top;"> <td colspan="12"> <nobr> '+index+'.</nobr>  '+item[index].name+' </td> </tr>'
-
-value = value + '<tr style="vertical-align:top;"> <td colspan="8">  '+item[index].price+'*'+item[index].quantity+'ШТ'+' </td> <td colspan="4">  '+item[index].cost+' </td> </tr>'
-$('#positions').append(value)
-if (item[index].discount_def > 0) {
-value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Скидка </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
-$('#positions').append(value)
-}
-value = value + '<tr style="vertical-align:top;"> <td colspan="3"> Стоимость </td> <td colspan="9">  '+item[index].sum+' </td> </tr>'
-$('#positions').append(value)
-}*/
-

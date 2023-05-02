@@ -103,7 +103,6 @@
         let OperationCash = "{{ $OperationCash }}"
         let OperationCard = "{{ $OperationCard }}"
 
-
         loading(createDocument, payment_type, OperationCash, OperationCard)
         NAME_HEADER_TOP_SERVICE("Настройки → Документ")
 
