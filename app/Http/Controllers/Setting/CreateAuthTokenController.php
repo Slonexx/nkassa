@@ -180,7 +180,7 @@ class CreateAuthTokenController extends Controller
             str_replace('(', '', str_replace(')', '', $request->email))))) ;
         $password = str_replace(" ", '', $request->password) ;
 
-        dd($request->all(),$login,  $password);
+        //dd($request->all(),$login,  $password);
 
         $client = new KassClient("");
         try {
