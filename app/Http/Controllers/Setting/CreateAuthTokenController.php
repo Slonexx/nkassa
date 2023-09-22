@@ -186,6 +186,7 @@ class CreateAuthTokenController extends Controller
             if (property_exists($post, 'error')) {
                 $result = [
                     'status' => 500,
+                    'error' => json_decode($post),
                     'auth_token' => null,
                 ];
             }

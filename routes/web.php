@@ -14,6 +14,10 @@ use App\Http\Controllers\Setting\DocumentController;
 use App\Http\Controllers\Setting\ReportController;
 use Illuminate\Support\Facades\Route;
 
+
+// install
+//composer require phpseclib/phpseclib:~3.0
+
 Route::get('/', [indexController::class, 'initialization']);
 Route::get('/{accountId}/', [indexController::class, 'index'])->name('main');
 
