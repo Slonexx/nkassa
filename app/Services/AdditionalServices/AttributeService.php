@@ -29,7 +29,7 @@ class AttributeService
     private function createOrderAttributes($apiKeyMs): void
     {
         $bodyAttributes = $this->getDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/customerorder/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
@@ -37,14 +37,14 @@ class AttributeService
     private function createDemandAttributes($apiKeyMs): void
     {
         $bodyAttributes = $this->getDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/demand/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/demand/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
 
     private function createSalesReturn($apiKeyMs){
         $bodyAttributes = $this->getDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/salesreturn/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/salesreturn/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
@@ -52,7 +52,7 @@ class AttributeService
     private function createPaymentInAttributes($apiKeyMs):void
     {
         $bodyAttributes = $this->getPayDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/paymentin/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/paymentin/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
@@ -60,7 +60,7 @@ class AttributeService
     private function createPaymentOutAttributes($apiKeyMs):void
     {
         $bodyAttributes = $this->getPayDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/paymentout/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/paymentout/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
@@ -68,7 +68,7 @@ class AttributeService
     private function createCashInAttributes($apiKeyMs):void
     {
         $bodyAttributes = $this->getPayDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/cashin/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/cashin/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
@@ -76,7 +76,7 @@ class AttributeService
     public function createCashOutAttributes($apiKeyMs)
     {
         $bodyAttributes = $this->getPayDocAttributes();
-        $url = "https://online.moysklad.ru/api/remap/1.2/entity/cashout/metadata/attributes";
+        $url = "https://api.moysklad.ru/api/remap/1.2/entity/cashout/metadata/attributes";
         $client = new MsClient($apiKeyMs);
         $this->getBodyToAdd($client, $url, $bodyAttributes);
     }
