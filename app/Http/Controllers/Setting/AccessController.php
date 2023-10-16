@@ -30,7 +30,7 @@ class AccessController extends Controller
             ]);
         }
 
-        if ( array_key_exists(0, $Workers->access) ){ $Workers = null;
+        if ( array_key_exists(0, $Workers->access) ){ $Workers = '';
         } else $Workers = $Workers->access;
 
 
@@ -45,33 +45,16 @@ class AccessController extends Controller
                 'message' => $e->getResponse()->getBody()->getContents()
             ]);
         }
-        $security = [];
 
 
-        $urls = [];
+
         foreach ($Body_employee as $id=>$item){
-            $url_security = $url_employee.'/'.$item->id.'/security';
-            $urls [] = $url_security;
-        }
-
-        $pools = function (Pool $pool) use ($urls,$tokenMs){
-            foreach ($urls as $url){
-                $arrPools [] = $pool->withToken($tokenMs)->get($url);
+            $json = $Client->get( $url_employee.'/'.$item->id.'/security');
+            if (property_exists($json, 'role')) {
+                if (mb_substr ($json->role->meta->href, 53)== "cashier") {
+                    unset($Body_employee[$id]);
+                }
             }
-            return $arrPools;
-        };
-
-        $responses = Http::pool($pools);
-        $count = 0;
-        foreach ($Body_employee as $id=>$item){
-            if ( isset($responses[$count]->object()->role) ){
-                $Body_security = $responses[$count]->object()->role;
-                $security[$item->id] = mb_substr ($Body_security->meta->href, 53);
-            } else {
-                $security[$item->id] = 'cashier';
-            }
-
-            $count++;
         }
 
         return view('setting.access', [
@@ -79,7 +62,6 @@ class AccessController extends Controller
             'isAdmin' => $isAdmin,
             'message'=>$message,
             'employee' => $Body_employee,
-            'security' => $security,
             'workers' => $Workers,
         ]);
     }

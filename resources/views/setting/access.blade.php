@@ -23,36 +23,7 @@
                         <div class="col-5"> Фамилия сотрудника </div>
                         <div class="col-5 mx-2"> Выберите доступ </div>
                     </div>
-                    @foreach($employee as $id=>$item)
-                        @if($security[$item->id] != 'cashier')
-                            <div class="mx-1 row mt-2">
-                                <div class="col-1 mx-3 mt-1">
-                                    {{$id}}
-                                    @if ($security[$item->id] == 'admin') <i class="mx-2 fa-solid fa-user-tie text-success "></i>@endif
-                                    @if($security[$item->id] == 'individual') <i class="mx-2 fa-solid fa-user-gear text-primary"></i>@endif
-                                </div>
-                                <div class="col-5 mt-1">
-                                    {{$item->fullName}}
-                                </div>
-                                <div class="col-5">
-                                    <select id="{{$item->id}}" name="{{$item->id}}" class="form-select text-black" >
-                                        @if ( isset($workers[$item->id]) )
-                                            @if ( $workers[$item->id]->access == 0 )
-                                                <option selected value="0">Запретить доступ </option>
-                                                <option value="1">Предоставить доступ</option>
-                                            @else
-                                                <option selected value="1">Предоставить доступ</option>
-                                                <option value="0">Запретить доступ </option>
-                                            @endif
-                                        @else
-                                            <option selected value="0">Запретить доступ </option>
-                                            <option value="1">Предоставить доступ</option>
-                                        @endif
-                                    </select>
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
+                    <div id="row" class="row"></div>
                 </div>
 
                 <hr class="href_padding">
@@ -66,6 +37,28 @@
 
     <script>
         NAME_HEADER_TOP_SERVICE("Настройки → доступа")
+
+        let row = @json($employee);
+        let workers = @json($workers);
+
+        for (let index = 0; row.length > index; index++){
+            let value
+            if (workers != ""){
+                if (workers[row[index].id] != undefined) {
+                    if (workers[row[index].id].access == 1) {
+                        value = '<div class="mx-1 row mt-2"> <div class="col-1 mx-3 mt-1">'+ index +'</div> <div class="col-5 mt-1"> ' + row[index].fullName + ' </div> <div class="col-5"> <select id="'+row[index].id+'" name="'+row[index].id+'" class="form-select text-black"> <option value="0">Запретить доступ </option> <option selected value="1">Предоставить доступ</option> </select> </div> </div>'
+                    } else  {
+                        value = '<div class="mx-1 row mt-2"> <div class="col-1 mx-3 mt-1">'+ index +'</div> <div class="col-5 mt-1"> ' + row[index].fullName + ' </div> <div class="col-5"> <select id="'+row[index].id+'" name="'+row[index].id+'" class="form-select text-black"> <option selected value="0">Запретить доступ </option> <option value="1">Предоставить доступ</option> </select> </div> </div>'
+                    }
+                } else  value = '<div class="mx-1 row mt-2"> <div class="col-1 mx-3 mt-1">'+ index +'</div> <div class="col-5 mt-1"> ' + row[index].fullName + ' </div> <div class="col-5"> <select id="'+row[index].id+'" name="'+row[index].id+'" class="form-select text-black"> <option selected value="0">Запретить доступ </option> <option value="1">Предоставить доступ</option> </select> </div> </div>'
+            } else value = '<div class="mx-1 row mt-2"> <div class="col-1 mx-3 mt-1">'+ index +'</div> <div class="col-5 mt-1"> ' + row[index].fullName + ' </div> <div class="col-5"> <select id="'+row[index].id+'" name="'+row[index].id+'" class="form-select text-black"> <option selected value="0">Запретить доступ </option> <option value="1">Предоставить доступ</option> </select> </div> </div>'
+
+
+            $('#row').append(value)
+        }
+
+
+
     </script>
 
 @endsection
